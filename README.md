@@ -360,3 +360,89 @@ docker.io/library/mysql:5.7
 ~~~
 
 ## 容器命令
+
+说明：我们有了镜像才可以创建容器，linux，下载一个centos镜像来测试学习
+
+~~~
+docker pull centos
+~~~
+
+**新建容器并启动**
+
+~~~shell
+docker run[可选参数] image
+
+#参数说明
+--name="Name"  容器名字 tomcat1 tomcat2 tomcat3 用来区分容器
+-d 后台方式运行
+-it 使用交互方式运行，进入容器查看内容
+-p 指定容器的端口 -p 8080:8080
+	-p ip:主机端口:容器端口
+	-p 主机端口:容器端口（常用）
+	-p 容器端口
+-P 随机指定端口
+
+#测试
+#启动并进入容器
+[root@iZfdjfsqewlu0jZ ~]# docker run -it centos /bin/bash
+[root@45d6d27fa7d6 /]#ls #查看容器内的centos
+bin  etc   lib    lost+found  mnt  proc  run   srv  tmp  var
+dev  home  lib64  media       opt  root  sbin  sys  usr
+#从容器中退回主机
+[root@45d6d27fa7d6 /]# exit
+exit
+~~~
+**查看容器**
+
+~~~shell
+#查看当前所有在运行的容器
+#docker ps
+-a #列出当前正在运行的容器，并带出历史容器
+-n=? #显示最近创建的几个容器
+-q #只显示容器的编号
+[root@iZfdjfsqewlu0jZ ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+#查看以前运行过的容器
+[root@iZfdjfsqewlu0jZ ~]# docker ps -a
+CONTAINER ID   IMAGE          COMMAND       CREATED         STATUS                          PORTS     NAMES
+45d6d27fa7d6   centos         "/bin/bash"   4 minutes ago   Exited (0) About a minute ago             objective_mestorf
+aed15223a15c   feb5d9fea6a5   "/hello"      17 hours ago    Exited (0) 17 hours ago                   peaceful_robinson
+8fede23a60b2   feb5d9fea6a5   "/hello"      17 hours ago    Exited (0) 17 hours ago                   objective_antonelli
+8c399f4637c4   feb5d9fea6a5   "/hello"      17 hours ago    Exited (0) 17 hours ago                   stupefied_germain
+
+~~~
+
+**删除容器**
+
+~~~shell
+docker rm 容器ID   #删除指定容器，不能删除正在运行的容器 如果要强制删除 rm -f
+docker rm -f $(docker ps -aq) #删除所有容器
+docker ps -aq|xargs docker rm #删除所有容器
+~~~
+
+**退出容器**
+
+~~~shell
+exit #直接退出容器
+Ctrl + p + q #容器不停止退出
+~~~
+
+**启动和停止容器的操作**
+
+~~~shell
+docker start 容器ID #启动容器
+docker restart 容器ID #重启容器
+docker stop 容器ID #停止当前正在运行的容器
+docker kill 容器ID #强制停止当前的容器
+~~~
+
+## 常用的其他命令
+
+**后台启动**
+
+~~~shell
+[root@iZfdjfsqewlu0jZ ~]# docker run -d centos
+aa22af65cfa5df9e9061901ae17a8894519db2715c57e1f2f18c717ac1418914
+
+~~~
+

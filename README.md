@@ -443,6 +443,291 @@ docker kill 容器ID #强制停止当前的容器
 ~~~shell
 [root@iZfdjfsqewlu0jZ ~]# docker run -d centos
 aa22af65cfa5df9e9061901ae17a8894519db2715c57e1f2f18c717ac1418914
+#问题docker ps发现centos停止了
+
+#常见的问题 docker容器使用后台运行，就必须要有一个前台进程，docker发现没有应用，就会自己停止，
+~~~
+
+**查看日志**
+
+~~~shell
+docker logs -tf --tail 条数 容器ID
+
+#自己编写一段shell脚本
+[root@iZfdjfsqewlu0jZ ~]# docker run -d centos /bin/sh -c "while true;do echo liyouxiu;sleep 1;done"
+8b27a4c617190f9607eeee54c5ee7287418de4032ffab59617bdeb07f67fd051
+
+#查看日志
+[root@iZfdjfsqewlu0jZ ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS     NAMES
+8b27a4c61719   centos    "/bin/sh -c 'while t…"   54 seconds ago   Up 54 seconds             gracious_kare
+
+[root@iZfdjfsqewlu0jZ ~]# docker logs -tf --tail 10 8b27a4c61719
+2022-06-12T12:05:11.110496256Z liyouxiu
+2022-06-12T12:05:12.113114538Z liyouxiu
+2022-06-12T12:05:13.115873163Z liyouxiu
+2022-06-12T12:05:14.118445564Z liyouxiu
+2022-06-12T12:05:15.120843830Z liyouxiu
+2022-06-12T12:05:16.123262855Z liyouxiu
+2022-06-12T12:05:17.126339630Z liyouxiu
+2022-06-12T12:05:18.128521488Z liyouxiu
+2022-06-12T12:05:19.131056900Z liyouxiu
+2022-06-12T12:05:20.133498323Z liyouxiu
+2022-06-12T12:05:21.136000568Z liyouxiu
+#显示日志
+-tf   #显示日志
+--tail number #显示日志的条数
+
+~~~
+
+**查看容器中进程信息**
+
+~~~shell
+#docker top 容器ID
+[root@iZfdjfsqewlu0jZ ~]# docker top d24668257c72
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+root                5327                5277                0                   20:09               pts/0               00:00:00            /bin/bash
+
+~~~
+
+**查看镜像元数据**
+
+~~~shell
+#docker inspect 容器ID
+[root@iZfdjfsqewlu0jZ ~]# docker inspect d24668257c72
+[
+    {
+        "Id": "d24668257c7242f9c237f3ae431e83cd2c0bbe9f1936d8aaa130a1a11d4f660a",
+        "Created": "2022-06-12T12:09:38.343790094Z",
+        "Path": "/bin/bash",
+        "Args": [],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 5327,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2022-06-12T12:09:38.728481556Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:5d0da3dc976460b72c77d94c8a1ad043720b0416bfc16c52c45d4847e53fadb6",
+        "ResolvConfPath": "/var/lib/docker/containers/d24668257c7242f9c237f3ae431e83cd2c0bbe9f1936d8aaa130a1a11d4f660a/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/d24668257c7242f9c237f3ae431e83cd2c0bbe9f1936d8aaa130a1a11d4f660a/hostname",
+        "HostsPath": "/var/lib/docker/containers/d24668257c7242f9c237f3ae431e83cd2c0bbe9f1936d8aaa130a1a11d4f660a/hosts",
+        "LogPath": "/var/lib/docker/containers/d24668257c7242f9c237f3ae431e83cd2c0bbe9f1936d8aaa130a1a11d4f660a/d24668257c7242f9c237f3ae431e83cd2c0bbe9f1936d8aaa130a1a11d4f660a-json.log",
+        "Name": "/suspicious_hodgkin",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "default",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "host",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "KernelMemory": 0,
+            "KernelMemoryTCP": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/51bf2fa7c66e7719010763c377dacc5adcc0679d0b286a752f54346892fc8ac5-init/diff:/var/lib/docker/overlay2/1844e91d48086f6ee51464363981949796755ef3647d489a4b68c69fce9597c6/diff",
+                "MergedDir": "/var/lib/docker/overlay2/51bf2fa7c66e7719010763c377dacc5adcc0679d0b286a752f54346892fc8ac5/merged",
+                "UpperDir": "/var/lib/docker/overlay2/51bf2fa7c66e7719010763c377dacc5adcc0679d0b286a752f54346892fc8ac5/diff",
+                "WorkDir": "/var/lib/docker/overlay2/51bf2fa7c66e7719010763c377dacc5adcc0679d0b286a752f54346892fc8ac5/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "d24668257c72",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "Image": "centos",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "org.label-schema.build-date": "20210915",
+                "org.label-schema.license": "GPLv2",
+                "org.label-schema.name": "CentOS Base Image",
+                "org.label-schema.schema-version": "1.0",
+                "org.label-schema.vendor": "CentOS"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "e7d1ec9b04028c9518c766a6f8f844a9f1410d15e78f832b3dfd989b3a7b0cf6",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/e7d1ec9b0402",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "9fdf53a8bec5c7f477295dfbc71acdbb389a58ea7edc88c1277153a6da71ccf3",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.2",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "02:42:ac:11:00:02",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "c1c3f09d7c5e2e5638d651a296ec87b5ec9db0fe613083ccf02a22529cdeea7b",
+                    "EndpointID": "9fdf53a8bec5c7f477295dfbc71acdbb389a58ea7edc88c1277153a6da71ccf3",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.2",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "02:42:ac:11:00:02",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+
+~~~
+
+**进入当前正在运行的容器**
+
+~~~shell
+#我们通常容器使用的都是后台方式运行的，需要进入容器，修改配置
+
+#命令
+docker exec -it 容器ID /bin/bash
+
+#测试
+[root@iZfdjfsqewlu0jZ /]# docker exec -it d24668257c72 /bin/bash
+[root@d24668257c72 /]# ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 12:09 pts/0    00:00:00 /bin/bash
+root        21     0  0 12:22 pts/1    00:00:00 /bin/bash
+root        36    21  0 12:23 pts/1    00:00:00 ps -ef
+
+#方式二
+docker attach 容器ID 
+#测试
+[root@iZfdjfsqewlu0jZ /]# docker attach d24668257c72
+[root@d24668257c72 /]# ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 12:09 pts/0    00:00:00 /bin/bash
+root        37     1  0 12:25 pts/0    00:00:00 ps -ef
+
+
+#docker exec   进入容器之后相当于开启了一个新的终端  
+#docker attach 进入容器正在运行的中断，不会开启新的终端
 
 ~~~
 

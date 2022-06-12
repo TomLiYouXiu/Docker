@@ -731,3 +731,25 @@ root        37     1  0 12:25 pts/0    00:00:00 ps -ef
 
 ~~~
 
+**从容器内拷贝文件到主机上**
+
+~~~shell
+docker cp 容器ID：容器内路径 目的的主机路径
+
+#进入容器
+[root@iZfdjfsqewlu0jZ home]# docker attach d24668257c72
+#创建文件
+[root@d24668257c72 /]# cd home/
+[root@d24668257c72 home]# touch liyouxiu.txt
+[root@d24668257c72 home]# ls
+liyouxiu.txt
+[root@d24668257c72 home]# exit
+exit
+#拷贝容器的文件到主机内
+[root@iZfdjfsqewlu0jZ home]# docker cp d24668257c72:/home/liyouxiu.txt /home
+[root@iZfdjfsqewlu0jZ home]# ls
+admin  liyouxiu.java  liyouxiu.txt
+
+#拷贝是一个手动的过程，未来我们使用-v 卷的技术可以实现数据的同步
+~~~
+

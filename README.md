@@ -749,7 +749,442 @@ exit
 [root@iZfdjfsqewlu0jZ home]# docker cp d24668257c72:/home/liyouxiu.txt /home
 [root@iZfdjfsqewlu0jZ home]# ls
 admin  liyouxiu.java  liyouxiu.txt
-
 #拷贝是一个手动的过程，未来我们使用-v 卷的技术可以实现数据的同步
 ~~~
 
+![](https://img-blog.csdnimg.cn/20210717134852290.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2h1YW5namhhaQ==,size_16,color_FFFFFF,t_70)
+
+# 作业练习
+
+## 作业一
+
+Docker安装Nginx
+
+~~~shell
+#1.搜索镜像（最好去Docker hub上查看详细信息）
+[root@iZfdjfsqewlu0jZ ~]# docker search nginx
+NAME                                              DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+nginx                                             Official build of Nginx.                        16944     [OK]       
+linuxserver/nginx                                 An Nginx container, brought to you by LinuxS…   169                  
+bitnami/nginx                                     Bitnami nginx Docker Image                      131                  [OK]
+
+#2.下载镜像
+[root@iZfdjfsqewlu0jZ ~]# docker pull nginx
+Using default tag: latest
+latest: Pulling from library/nginx
+a2abf6c4d29d: Pull complete 
+a9edb18cadd1: Pull complete 
+589b7251471a: Pull complete 
+186b1aaa4aa6: Pull complete 
+b4df32aa5a72: Pull complete 
+a0bcbecc962e: Pull complete 
+Digest: sha256:0d17b565c37bcbd895e9d92315a05c1c3c9a29f762b011a10c54a66cd53c9b31
+Status: Downloaded newer image for nginx:latest
+docker.io/library/nginx:latest
+
+#3.镜像查看
+[root@iZfdjfsqewlu0jZ ~]# docker images
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+nginx         latest    605c77e624dd   5 months ago   141MB
+mysql         5.7       c20987f18b13   5 months ago   448MB
+mysql         latest    3218b38490ce   5 months ago   516MB
+hello-world   latest    feb5d9fea6a5   8 months ago   13.3kB
+centos        latest    5d0da3dc9764   9 months ago   231MB
+
+#4.启动
+[root@iZfdjfsqewlu0jZ ~]# docker run -d --name nginx01 -p 33344:80 nginx
+#docker run -d --name nginx01 -p 33344:80 nginx -d 后台启动  -p 33344:80 物理机端口映射：docker容器端口
+2b387c31a865d974817f2072b8cf0fc3c66199b38d9af70bdbd1d9a50203347d
+[root@iZfdjfsqewlu0jZ ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                                     NAMES
+2b387c31a865   nginx     "/docker-entrypoint.…"   8 seconds ago   Up 7 seconds   0.0.0.0:33344->80/tcp, :::33344->80/tcp   nginx01
+
+
+#5.测试连接
+[root@iZfdjfsqewlu0jZ ~]# curl localhost:33344
+#curl linux测试网页链接
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+#6.进入Nginx
+[root@iZfdjfsqewlu0jZ ~]# docker exec -it nginx01 /bin/bash
+root@2b387c31a865:/# whereis nginx 
+nginx: /usr/sbin/nginx /usr/lib/nginx /etc/nginx /usr/share/nginx
+root@2b387c31a865:/# cd /etc/nginx/
+root@2b387c31a865:/etc/nginx# ls
+conf.d  fastcgi_params  mime.types  modules  nginx.conf  scgi_params  uwsgi_params
+root@2b387c31a865:/etc/nginx# 
+
+~~~
+
+## 作业二
+
+使用docker安装tomcat
+
+**方法一**
+
+~~~shell
+#1.搜索镜像
+[root@iZfdjfsqewlu0jZ ~]# docker search tomcat
+NAME                                           DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+tomcat                                         Apache Tomcat is an open source implementati…   3342      [OK]       
+tomee                                          Apache TomEE is an all-Apache Java EE certif…   97        [OK]       
+
+#2.下载镜像
+[root@iZfdjfsqewlu0jZ ~]# docker pull tomcat
+Using default tag: latest
+latest: Pulling from library/tomcat
+0e29546d541c: Pull complete 
+9b829c73b52b: Pull complete 
+cb5b7ae36172: Pull complete 
+6494e4811622: Pull complete 
+668f6fcc5fa5: Pull complete 
+dc120c3e0290: Pull complete 
+8f7c0eebb7b1: Pull complete 
+77b694f83996: Pull complete 
+0f611256ec3a: Pull complete 
+4f25def12f23: Pull complete 
+Digest: sha256:9dee185c3b161cdfede1f5e35e8b56ebc9de88ed3a79526939701f3537a52324
+Status: Downloaded newer image for tomcat:latest
+docker.io/library/tomcat:latest
+
+#3.查看镜像
+[root@iZfdjfsqewlu0jZ ~]# docker images
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+nginx         latest    605c77e624dd   5 months ago   141MB
+tomcat        latest    fb5657adc892   5 months ago   680MB
+mysql         5.7       c20987f18b13   5 months ago   448MB
+mysql         latest    3218b38490ce   5 months ago   516MB
+hello-world   latest    feb5d9fea6a5   8 months ago   13.3kB
+centos        latest    5d0da3dc9764   9 months ago   231MB
+
+#4.后台启动
+[root@iZfdjfsqewlu0jZ ~]# docker run -d --name tomcat00 -p 8080:8080 tomcat
+ba614f419da44865d644685a694fcc8eb6dc24634ca6542ff814607c670be0b8
+[root@iZfdjfsqewlu0jZ ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+ba614f419da4   tomcat    "catalina.sh run"        36 seconds ago   Up 35 seconds   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp   tomcat00
+2b387c31a865   nginx     "/docker-entrypoint.…"   24 hours ago     Up 24 hours     0.0.0.0:33344->80/tcp, :::33344->80/tcp     nginx01
+
+#5.测试连接
+[root@iZfdjfsqewlu0jZ ~]# curl localhost:8080
+<!doctype html><html lang="en"><head><title>HTTP Status 404 – Not Found</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 404 – Not Found</h1><hr class="line" /><p><b>Type</b> Status Report</p><p><b>Description</b> The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.</p><hr class="line" /><h3>Apache Tomcat/10.0.14</h3></body></html>
+
+#6.进入
+[root@iZfdjfsqewlu0jZ ~]# docker exec -it tomcat00 /bin/bash
+root@ba614f419da4:/usr/local/tomcat# 
+root@ba614f419da4:/usr/local/tomcat# ls
+BUILDING.txt     LICENSE  README.md      RUNNING.txt  conf  logs            temp     webapps.dist
+CONTRIBUTING.md  NOTICE   RELEASE-NOTES  bin          lib   native-jni-lib  webapps  work
+
+#发现问题
+#linux命令少了，webapps文件夹为空
+#镜像的原因，默认是最小的镜像，所有不必要的都删除掉
+#保证最小的可运行环境
+
+#文件都在webapps.dist
+root@50e480f5f0e6:/usr/local/tomcat# cd webapps.dist/
+root@50e480f5f0e6:/usr/local/tomcat/webapps.dist# ll
+bash: ll: command not found
+root@50e480f5f0e6:/usr/local/tomcat/webapps.dist# ls
+ROOT  docs  examples  host-manager  manager
+#复制
+root@50e480f5f0e6:/usr/local/tomcat# cp -r webapps.dist/* webapps/
+root@50e480f5f0e6:/usr/local/tomcat# cd webapps
+root@50e480f5f0e6:/usr/local/tomcat/webapps# ls
+ROOT  docs  examples  host-manager  manager
+
+#查看
+[root@iZfdjfsqewlu0jZ ~]# curl 127.0.0.1:8080
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Apache Tomcat/10.0.14</title>
+        <link href="favicon.ico" rel="icon" type="image/x-icon" />
+        <link href="tomcat.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="navigation" class="curved container">
+                <span id="nav-home"><a href="https://tomcat.apache.org/">Home</a></span>
+                <span id="nav-hosts"><a href="/docs/">Documentation</a></span>
+                <span id="nav-config"><a href="/docs/config/">Configuration</a></span>
+                <span id="nav-examples"><a href="/examples/">Examples</a></span>
+                <span id="nav-wiki"><a href="https://wiki.apache.org/tomcat/FrontPage">Wiki</a></span>
+                <span id="nav-lists"><a href="https://tomcat.apache.org/lists.html">Mailing Lists</a></span>
+                <span id="nav-help"><a href="https://tomcat.apache.org/findhelp.html">Find Help</a></span>
+                <br class="separator" />
+            </div>
+            <div id="asf-box">
+                <h1>Apache Tomcat/10.0.14</h1>
+            </div>
+            <div id="upper" class="curved container">
+                <div id="congrats" class="curved container">
+                    <h2>If you're seeing this, you've successfully installed Tomcat. Congratulations!</h2>
+                </div>
+                <div id="notice">
+                    <img id="tomcat-logo" src="tomcat.svg" alt="[tomcat logo]" />
+                    <div id="tasks">
+                        <h3>Recommended Reading:</h3>
+                        <h4><a href="/docs/security-howto.html">Security Considerations How-To</a></h4>
+                        <h4><a href="/docs/manager-howto.html">Manager Application How-To</a></h4>
+                        <h4><a href="/docs/cluster-howto.html">Clustering/Session Replication How-To</a></h4>
+                    </div>
+                </div>
+                <div id="actions">
+                    <div class="button">
+                        <a class="container shadow" href="/manager/status"><span>Server Status</span></a>
+                    </div>
+                    <div class="button">
+                        <a class="container shadow" href="/manager/html"><span>Manager App</span></a>
+                    </div>
+                    <div class="button">
+                        <a class="container shadow" href="/host-manager/html"><span>Host Manager</span></a>
+                    </div>
+                </div>
+                <br class="separator" />
+            </div>
+            <div id="middle" class="curved container">
+                <h3>Developer Quick Start</h3>
+                <div class="col25">
+                    <div class="container">
+                        <p><a href="/docs/setup.html">Tomcat Setup</a></p>
+                        <p><a href="/docs/appdev/">First Web Application</a></p>
+                    </div>
+                </div>
+                <div class="col25">
+                    <div class="container">
+                        <p><a href="/docs/realm-howto.html">Realms &amp; AAA</a></p>
+                        <p><a href="/docs/jndi-datasource-examples-howto.html">JDBC DataSources</a></p>
+                    </div>
+                </div>
+                <div class="col25">
+                    <div class="container">
+                        <p><a href="/examples/">Examples</a></p>
+                    </div>
+                </div>
+                <div class="col25">
+                    <div class="container">
+                        <p><a href="https://wiki.apache.org/tomcat/Specifications">Servlet Specifications</a></p>
+                        <p><a href="https://wiki.apache.org/tomcat/TomcatVersions">Tomcat Versions</a></p>
+                    </div>
+                </div>
+                <br class="separator" />
+            </div>
+            <div id="lower">
+                <div id="low-manage" class="">
+                    <div class="curved container">
+                        <h3>Managing Tomcat</h3>
+                        <p>For security, access to the <a href="/manager/html">manager webapp</a> is restricted.
+                        Users are defined in:</p>
+                        <pre>$CATALINA_HOME/conf/tomcat-users.xml</pre>
+                        <p>In Tomcat 10.0 access to the manager application is split between
+                           different users. &nbsp; <a href="/docs/manager-howto.html">Read more...</a></p>
+                        <br />
+                        <h4><a href="/docs/RELEASE-NOTES.txt">Release Notes</a></h4>
+                        <h4><a href="/docs/changelog.html">Changelog</a></h4>
+                        <h4><a href="https://tomcat.apache.org/migration.html">Migration Guide</a></h4>
+                        <h4><a href="https://tomcat.apache.org/security.html">Security Notices</a></h4>
+                    </div>
+                </div>
+                <div id="low-docs" class="">
+                    <div class="curved container">
+                        <h3>Documentation</h3>
+                        <h4><a href="/docs/">Tomcat 10.0 Documentation</a></h4>
+                        <h4><a href="/docs/config/">Tomcat 10.0 Configuration</a></h4>
+                        <h4><a href="https://wiki.apache.org/tomcat/FrontPage">Tomcat Wiki</a></h4>
+                        <p>Find additional important configuration information in:</p>
+                        <pre>$CATALINA_HOME/RUNNING.txt</pre>
+                        <p>Developers may be interested in:</p>
+                        <ul>
+                            <li><a href="https://tomcat.apache.org/bugreport.html">Tomcat 10.0 Bug Database</a></li>
+                            <li><a href="/docs/api/index.html">Tomcat 10.0 JavaDocs</a></li>
+                            <li><a href="https://github.com/apache/tomcat/tree/10.0.x">Tomcat 10.0 Git Repository at GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="low-help" class="">
+                    <div class="curved container">
+                        <h3>Getting Help</h3>
+                        <h4><a href="https://tomcat.apache.org/faq/">FAQ</a> and <a href="https://tomcat.apache.org/lists.html">Mailing Lists</a></h4>
+                        <p>The following mailing lists are available:</p>
+                        <ul>
+                            <li id="list-announce"><strong><a href="https://tomcat.apache.org/lists.html#tomcat-announce">tomcat-announce</a><br />
+                                Important announcements, releases, security vulnerability notifications. (Low volume).</strong>
+                            </li>
+                            <li><a href="https://tomcat.apache.org/lists.html#tomcat-users">tomcat-users</a><br />
+                                User support and discussion
+                            </li>
+                            <li><a href="https://tomcat.apache.org/lists.html#taglibs-user">taglibs-user</a><br />
+                                User support and discussion for <a href="https://tomcat.apache.org/taglibs/">Apache Taglibs</a>
+                            </li>
+                            <li><a href="https://tomcat.apache.org/lists.html#tomcat-dev">tomcat-dev</a><br />
+                                Development mailing list, including commit messages
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <br class="separator" />
+            </div>
+            <div id="footer" class="curved container">
+                <div class="col20">
+                    <div class="container">
+                        <h4>Other Downloads</h4>
+                        <ul>
+                            <li><a href="https://tomcat.apache.org/download-connectors.cgi">Tomcat Connectors</a></li>
+                            <li><a href="https://tomcat.apache.org/download-native.cgi">Tomcat Native</a></li>
+                            <li><a href="https://tomcat.apache.org/taglibs/">Taglibs</a></li>
+                            <li><a href="/docs/deployer-howto.html">Deployer</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col20">
+                    <div class="container">
+                        <h4>Other Documentation</h4>
+                        <ul>
+                            <li><a href="https://tomcat.apache.org/connectors-doc/">Tomcat Connectors</a></li>
+                            <li><a href="https://tomcat.apache.org/connectors-doc/">mod_jk Documentation</a></li>
+                            <li><a href="https://tomcat.apache.org/native-doc/">Tomcat Native</a></li>
+                            <li><a href="/docs/deployer-howto.html">Deployer</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col20">
+                    <div class="container">
+                        <h4>Get Involved</h4>
+                        <ul>
+                            <li><a href="https://tomcat.apache.org/getinvolved.html">Overview</a></li>
+                            <li><a href="https://tomcat.apache.org/source.html">Source Repositories</a></li>
+                            <li><a href="https://tomcat.apache.org/lists.html">Mailing Lists</a></li>
+                            <li><a href="https://wiki.apache.org/tomcat/FrontPage">Wiki</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col20">
+                    <div class="container">
+                        <h4>Miscellaneous</h4>
+                        <ul>
+                            <li><a href="https://tomcat.apache.org/contact.html">Contact</a></li>
+                            <li><a href="https://tomcat.apache.org/legal.html">Legal</a></li>
+                            <li><a href="https://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>
+                            <li><a href="https://www.apache.org/foundation/thanks.html">Thanks</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col20">
+                    <div class="container">
+                        <h4>Apache Software Foundation</h4>
+                        <ul>
+                            <li><a href="https://tomcat.apache.org/whoweare.html">Who We Are</a></li>
+                            <li><a href="https://tomcat.apache.org/heritage.html">Heritage</a></li>
+                            <li><a href="https://www.apache.org">Apache Home</a></li>
+                            <li><a href="https://tomcat.apache.org/resources.html">Resources</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <br class="separator" />
+            </div>
+            <p class="copyright">Copyright &copy;1999-2022 Apache Software Foundation.  All Rights Reserved</p>
+        </div>
+    </body>
+
+</html>
+
+~~~
+
+**方法二**
+
+~~~SHELL
+docker run -it --rm tomcat:9.0
+
+#我们之前的启动都是后台的，停止了容器之后，容器还是可以查到的 docker run -it --rm 一般用来测试，用完就删除
+[root@iZfdjfsqewlu0jZ ~]# docker run -it --rm tomcat:9.0
+Unable to find image 'tomcat:9.0' locally
+9.0: Pulling from library/tomcat
+0e29546d541c: Already exists 
+9b829c73b52b: Already exists 
+cb5b7ae36172: Already exists 
+6494e4811622: Already exists 
+668f6fcc5fa5: Already exists 
+dc120c3e0290: Already exists 
+8f7c0eebb7b1: Already exists 
+77b694f83996: Already exists 
+7662046c36cb: Pull complete 
+b93639122cb4: Pull complete 
+Digest: sha256:cd96d4f7d3f5fc4d3bc1622ec678207087b8215d55021a607ecaefba80b403ea
+Status: Downloaded newer image for tomcat:9.0
+Using CATALINA_BASE:   /usr/local/tomcat
+Using CATALINA_HOME:   /usr/local/tomcat
+Using CATALINA_TMPDIR: /usr/local/tomcat/temp
+Using JRE_HOME:        /usr/local/openjdk-11
+Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
+Using CATALINA_OPTS:   
+NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+15-Jun-2022 07:49:47.047 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server version name:   Apache Tomcat/9.0.56
+15-Jun-2022 07:49:47.086 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server built:          Dec 2 2021 14:30:07 UTC
+15-Jun-2022 07:49:47.086 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server version number: 9.0.56.0
+15-Jun-2022 07:49:47.086 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log OS Name:               Linux
+15-Jun-2022 07:49:47.086 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log OS Version:            4.18.0-193.14.2.el8_2.x86_64
+15-Jun-2022 07:49:47.086 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Architecture:          amd64
+15-Jun-2022 07:49:47.087 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Java Home:             /usr/local/openjdk-11
+15-Jun-2022 07:49:47.087 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Version:           11.0.13+8
+15-Jun-2022 07:49:47.087 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Vendor:            Oracle Corporation
+15-Jun-2022 07:49:47.087 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE:         /usr/local/tomcat
+15-Jun-2022 07:49:47.087 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME:         /usr/local/tomcat
+15-Jun-2022 07:49:47.158 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.lang=ALL-UNNAMED
+15-Jun-2022 07:49:47.158 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.io=ALL-UNNAMED
+15-Jun-2022 07:49:47.158 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.util=ALL-UNNAMED
+15-Jun-2022 07:49:47.158 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.util.concurrent=ALL-UNNAMED
+15-Jun-2022 07:49:47.159 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+15-Jun-2022 07:49:47.159 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.config.file=/usr/local/tomcat/conf/logging.properties
+15-Jun-2022 07:49:47.159 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
+15-Jun-2022 07:49:47.160 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djdk.tls.ephemeralDHKeySize=2048
+15-Jun-2022 07:49:47.162 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.protocol.handler.pkgs=org.apache.catalina.webresources
+15-Jun-2022 07:49:47.162 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dorg.apache.catalina.security.SecurityListener.UMASK=0027
+15-Jun-2022 07:49:47.162 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dignore.endorsed.dirs=
+15-Jun-2022 07:49:47.162 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.base=/usr/local/tomcat
+15-Jun-2022 07:49:47.162 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.home=/usr/local/tomcat
+15-Jun-2022 07:49:47.162 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.io.tmpdir=/usr/local/tomcat/temp
+15-Jun-2022 07:49:47.171 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent Loaded Apache Tomcat Native library [1.2.31] using APR version [1.7.0].
+15-Jun-2022 07:49:47.171 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true], UDS [true].
+15-Jun-2022 07:49:47.171 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+15-Jun-2022 07:49:47.177 INFO [main] org.apache.catalina.core.AprLifecycleListener.initializeSSL OpenSSL successfully initialized [OpenSSL 1.1.1k  25 Mar 2021]
+15-Jun-2022 07:49:48.157 INFO [main] org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler ["http-nio-8080"]
+15-Jun-2022 07:49:48.253 INFO [main] org.apache.catalina.startup.Catalina.load Server initialization in [1787] milliseconds
+15-Jun-2022 07:49:48.439 INFO [main] org.apache.catalina.core.StandardService.startInternal Starting service [Catalina]
+15-Jun-2022 07:49:48.440 INFO [main] org.apache.catalina.core.StandardEngine.startInternal Starting Servlet engine: [Apache Tomcat/9.0.56]
+15-Jun-2022 07:49:48.468 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
+15-Jun-2022 07:49:48.499 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in [244] milliseconds
+
+#接着执行方式一
+~~~
+
+## 作业三
+
+部署ES+kibana

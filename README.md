@@ -1188,3 +1188,15 @@ NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED -
 ## 作业三
 
 部署ES+kibana
+
+~~~
+es暴露的端口很多
+es十分的耗内存
+es的数据一般需要存放到安全目录
+~~~
+
+~~~shell
+#启动elasticsearch
+$ docker run -d --name elasticsearch --net somenetwork -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:tag
+~~~
+

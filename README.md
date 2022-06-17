@@ -1198,5 +1198,366 @@ es的数据一般需要存放到安全目录
 ~~~shell
 #启动elasticsearch
 $ docker run -d --name elasticsearch --net somenetwork -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:tag
+
+#启动之后非常的卡
+#查看cpu的状态 docker stats
+#测试es
 ~~~
 
+感觉没什么必要这个作业所以没有继续往下做
+
+# 可视化
+
+* portainer(可以先用着个)
+
+**什么是portainer？**
+
+Docker图形化界面管理工具！提供后台面板供我们操作
+
+~~~shell
+docker run -p 9000:9000 -p 8000:8000 --name portainer \
+--restart=always \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v /mydata/portainer/data:/data \
+-d portainer/portainer
+~~~
+
+~~~shell
+#测试连接
+http://10*********4:9000/
+#第一次需要创建账号
+
+~~~
+
+**借鉴知乎大佬[(46 封私信 / 80 条消息) macrozheng - 知乎 (zhihu.com)](https://www.zhihu.com/people/macrozheng)**
+
+- 第一次登录的时候需要创建管理员账号，访问地址：http://10*********4:9000/
+
+![img](https://pic4.zhimg.com/80/v2-7c8e004682cf1f021dbd0d1a590d73cb_1440w.jpg)
+
+
+
+- 之后我们选择连接到本地的Docker环境，连接完成后我们就可以愉快地使用Portainer进行可视化管理了！
+
+
+
+![img](https://pic4.zhimg.com/80/v2-aa3d2a40980cbab83e4941e48d033fb7_1440w.jpg)
+
+
+
+## 使用
+
+- 登录成功后，可以发现有一个本地的Docker环境；
+
+
+
+![img](https://pic4.zhimg.com/80/v2-c351496a453b108fd57b5143412b50db_1440w.jpg)
+
+
+
+- 打开Dashboard菜单可以看到Docker环境的概览信息，比如运行了几个容器，有多少个镜像等；
+
+
+
+![img](https://pic3.zhimg.com/80/v2-e530b5970b4c00486ed76c51e8bfa07a_1440w.jpg)
+
+
+
+- 打开App Templates菜单可以看到很多创建容器的模板，通过模板设置下即可轻松创建容器，支持的应用还是挺多的；
+
+
+
+![img](https://pic1.zhimg.com/80/v2-a65eb19fa8a460e24fd92ffd40df754c_1440w.jpg)
+
+
+
+- 打开Containers菜单，可以看到当前创建的容器，我们可以对容器进行运行、暂停、删除等操作；
+
+
+
+![img](https://pic4.zhimg.com/80/v2-0521d7d66abc70a04ef746406d5cb327_1440w.jpg)
+
+
+
+- 选择一个容器，点击Logs按钮，可以直接查看容器运行日志，可以和`docker logs`命令说再见了；
+
+
+
+![img](https://pic3.zhimg.com/80/v2-0f7c94e1066de5c05349649fa105dafe_1440w.jpg)
+
+
+
+- 点击Inspect按钮，可以查看容器信息，比如看看容器运行的IP地址；
+
+
+
+![img](https://pic4.zhimg.com/80/v2-947a0ba0ff2112faf1df54ea10da3487_1440w.jpg)
+
+
+
+- 点击Stats按钮，可以查看容器的内存、CPU及网络的使用情况，性能分析不愁了；
+
+
+
+![img](https://pic3.zhimg.com/80/v2-94cf19dd9e486e80fc372f73d0702532_1440w.jpg)
+
+
+
+- 点击Console按钮，可以进入到容器中去执行命令，比如我们可以进入到MySQL容器中去执行登录命令；
+
+
+
+![img](https://pic1.zhimg.com/80/v2-a98e25941d40aa75593f55112b5a068c_1440w.jpg)
+
+
+
+- 打开Images菜单，我们可以查看所有的本地镜像，对镜像进行管理；
+
+
+
+![img](https://pic2.zhimg.com/80/v2-bd8855504fdb6e4e012b19bafcc050c9_1440w.jpg)
+
+
+
+- 打开Networks菜单，可以查看Docker环境中的网络情况；
+
+
+
+![img](https://pic4.zhimg.com/80/v2-55261dec5f9888990938b0fd24b78623_1440w.jpg)
+
+
+
+- 打开Users菜单，我们可以创建Portainer的用户，并给他们赋予相应的角色；
+
+
+
+![img](https://pic2.zhimg.com/80/v2-30f05a2c2c97e6a00dcf210dcfa9b9e5_1440w.jpg)
+
+
+
+- 打开Registries菜单，我们可以配置自己的镜像仓库，这样在拉取镜像的时候，就可以选择从自己的镜像仓库拉取了。
+
+
+
+![img](https://pic1.zhimg.com/80/v2-b6ef10c2dd12e3ff2e6234854a32fd9c_1440w.jpg)
+
+* Rancher（CI/CD）
+
+~~~shell
+
+~~~
+
+# Docker镜像
+
+## 镜像是什么
+
+镜像是一种轻量级的，可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需要的的所有内容，包括代码，运行时 ，库，环境变量和配置文件。
+
+所有的应用，直接打包docker镜像，就可以直接跑起来
+
+如何得到镜像：
+
+* 远程仓库下载
+* 自己制作DockerFile
+
+## Docker镜像加载原理
+
+**联合文件系统：UnionFS**
+联合文件系统（UnionFS）是一种分层、轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下。
+联合文件系统是 Docker 镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。
+
+![](https://pic.imgdb.cn/item/62ac706009475431297faa4a.jpg)
+
+特性：
+一次同时加载多个文件系统，但从外面看来，只能看到一个文件系统，联合加载会把各层文件系统叠加起来，这样最终的文件系统会包含所有底层的文件和目录。
+
+docker镜像结构详细描述
+Linux 文件系统结构：
+
+典型的 Linux 文件系统由 bootfs 和 rootfs 两部分组成。bootfs(boot file system) 主要包含 bootloader 和 kernel，bootloader 主要是引导加载 kernel(内核)，当 kernel 被加载到内存中后 bootfs 就被 umount (卸载)了。
+
+rootfs (root file system) 包含的就是典型 Linux 系统中的 /dev，/proc，/bin，/etc 等标准目录和文件。rootfs就是各种Linux发行版。比如redcat、centOS。
+
+docker镜像结构：
+
+Docker 容器是建立在 Aufs 基础上的，Aufs（以前称之为Another Union FS，后来绝不不够高大上，更名为Advanced Union FS）是一种Union FS， 简单来说就是支持将不同的目录挂载到同一个虚拟文件系统下，并实现一种 layer 的概念。Aufs 将挂载到同一虚拟文件系统下的多个目录分别设置成 read-only，read-write 以及 whiteout-able 权限，对 read-only 目录只能读，而写操作只能实施在 read-write 目录中。重点在于，写操作是在 read-only 上的一种增量操作，不影响 read-only 目录。当挂载目录的时候要严格按照各目录之间的这种增量关系，将被增量操作的目录优先于在它基础上增量操作的目录挂载，待所有目录挂载结束了，继续挂载一个 read-write 目录，如此便形成了一种层次结构。
+
+传统的 Linux 加载 bootfs 时会先将 rootfs 设为 read-only，然后在系统自检之后将 rootfs 从 read-only 改为 read-write，然后我们就可以在 rootfs 上进行写和读的操作了。但 Docker 的镜像却不是这样，它在 bootfs 自检完毕之后并不会把 rootfs 的 read-only 改为 read-write。而是利用 union mount（UnionFS 的一种挂载机制）将一个或多个 read-only 的 rootfs 加载到之前的 read-only 的 rootfs 层之上。在加载了这么多层的 rootfs 之后，仍然让它看起来只像是一个文件系统，在 Docker 的体系里把 union mount 的这些 read-only 的 rootfs 叫做 Docker 的镜像。但是，此时的每一层 rootfs 都是 read-only 的，我们此时还不能对其进行操作。当我们创建一个容器，也就是将 Docker 镜像进行实例化，系统会在一层或是多层 read-only 的 rootfs 之上分配一层空的 read-write 的 rootfs。
+
+总结：
+
+对于一个精简的OS，rootfs可以很小，只需要包含基本的命令，工具和程序库就可以，因为底层直接用host的kernel(主机的内核)，自己只需要提供rootfs即可。
+由此可见，Linux的不同发行版本，bootfs基本是一致的，rootfs会有差别，因此不同发行版本可以共用bootfs。
+bootfs和内核的连接启动是很慢的，这也解释了，为什么虚拟机启动是分钟级别(就像启动电脑要开机，开机很慢)，而镜像启动是秒级的(电脑已经开机，打开软件就可以)。
+
+~~~shell
+#查看镜像分层具体信息
+
+[root@iZfdjfsqewlu0jZ /]# docker image inspect redis
+[
+    {
+        "Id": "sha256:7614ae9453d1d87e740a2056257a6de7135c84037c367e1fffa92ae922784631",
+        "RepoTags": [
+            "redis:latest"
+        ],
+        "RepoDigests": [
+            "redis@sha256:db485f2e245b5b3329fdc7eff4eb00f913e09d8feb9ca720788059fdc2ed8339"
+        ],
+        "Parent": "",
+        "Comment": "",
+        "Created": "2021-12-21T12:42:49.755107412Z",
+        "Container": "13d25f53410417c5220c8dfe8bd49f06abdbcd69faa62a9b877de02464bb04a3",
+        "ContainerConfig": {
+            "Hostname": "13d25f534104",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "6379/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GOSU_VERSION=1.12",
+                "REDIS_VERSION=6.2.6",
+                "REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-6.2.6.tar.gz",
+                "REDIS_DOWNLOAD_SHA=5b2b8b7a50111ef395bf1c1d5be11e6e167ac018125055daa8b5c2317ae131ab"
+            ],
+            "Cmd": [
+                "/bin/sh",
+                "-c",
+                "#(nop) ",
+                "CMD [\"redis-server\"]"
+            ],
+            "Image": "sha256:e093f59d716c95cfce82c676f099b960cc700432ab531388fcedf79932fc81ec",
+            "Volumes": {
+                "/data": {}
+            },
+            "WorkingDir": "/data",
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "DockerVersion": "20.10.7",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "6379/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GOSU_VERSION=1.12",
+                "REDIS_VERSION=6.2.6",
+                "REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-6.2.6.tar.gz",
+                "REDIS_DOWNLOAD_SHA=5b2b8b7a50111ef395bf1c1d5be11e6e167ac018125055daa8b5c2317ae131ab"
+            ],
+            "Cmd": [
+                "redis-server"
+            ],
+            "Image": "sha256:e093f59d716c95cfce82c676f099b960cc700432ab531388fcedf79932fc81ec",
+            "Volumes": {
+                "/data": {}
+            },
+            "WorkingDir": "/data",
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": null
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 112691373,
+        "VirtualSize": 112691373,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/b58d95856eeb6feed789f32d324856818892daaa701e2eb778220b7ca9e26634/diff:/var/lib/docker/overlay2/c141a1f7109f2356d4948ef6d9c6efdc9ffcc6697638ae15260dfdd83ad3827c/diff:/var/lib/docker/overlay2/b70a2a307714a1ce18b2486f4d5bb4a66fafe4127841327dabe549ec94f32ce6/diff:/var/lib/docker/overlay2/9f3dda2349a92df055f4208385ce4d24226427663b142b932787757a88f32de2/diff:/var/lib/docker/overlay2/ea4e79ae9d30212a97222a053ac1d71f34ba6089cc27d54cf9c53da4e06024c9/diff",
+                "MergedDir": "/var/lib/docker/overlay2/231ac64eaf234f180656e26a2e464a27ca72b79bcc7c5726a1138c7e3d107431/merged",
+                "UpperDir": "/var/lib/docker/overlay2/231ac64eaf234f180656e26a2e464a27ca72b79bcc7c5726a1138c7e3d107431/diff",
+                "WorkDir": "/var/lib/docker/overlay2/231ac64eaf234f180656e26a2e464a27ca72b79bcc7c5726a1138c7e3d107431/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:2edcec3590a4ec7f40cf0743c15d78fb39d8326bc029073b41ef9727da6c851f",
+                "sha256:9b24afeb7c2f21e50a686ead025823cd2c6e9730c013ca77ad5f115c079b57cb",
+                "sha256:4b8e2801e0f956a4220c32e2c8b0a590e6f9bd2420ec65453685246b82766ea1",
+                "sha256:529cdb636f61e95ab91a62a51526a84fd7314d6aab0d414040796150b4522372",
+                "sha256:9975392591f2777d6bf4d9919ad1b2c9afa12f9a9b4d260f45025ec3cc9b18ed",
+                "sha256:8e5669d8329116b8444b9bbb1663dda568ede12d3dbcce950199b582f6e94952"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "0001-01-01T00:00:00Z"
+        }
+    }
+]
+
+~~~
+
+## 分层的理解
+
+Docker镜像都是只读，当容器启动时，一个新的可写层被加载到镜像的顶部！
+
+这一层就是我们通常说的容器层，容器之下都叫镜像层
+
+## commit
+
+~~~shell
+docker commit 提交容器成为一个新的副本
+#命令和git原理类似
+docker commit -m="提交的信息" -a="作者" 容器ID 目标镜像名:[TAG]
+~~~
+
+**实际操作**
+
+~~~shell
+#首先启动一个官方的tomcat镜像
+
+#发现tomcat镜像webapps没有任何文件
+
+#自己进行复制文件从webapps.dist-->webapps
+
+#通过commit提交修改后的镜像，生成新的镜像，这个镜像就是新的镜像
+[root@iZfdjfsqewlu0jZ ~]# docker commit -a="liyouxiu" -m="add webapps files" 3d000cb06218 retomcat:1.0 
+sha256:a84aeaeee34f846c628058722c677c4c55967fec64469c2a83d4ef7de887f7e8
+[root@iZfdjfsqewlu0jZ ~]# docker images
+REPOSITORY            TAG       IMAGE ID       CREATED          SIZE
+retomcat              1.0       a84aeaeee34f   20 seconds ago   684MB
+nginx                 latest    605c77e624dd   5 months ago     141MB
+tomcat                9.0       b8e65a4d736d   5 months ago     680MB
+tomcat                latest    fb5657adc892   5 months ago     680MB
+redis                 latest    7614ae9453d1   5 months ago     113MB
+mysql                 5.7       c20987f18b13   5 months ago     448MB
+mysql                 latest    3218b38490ce   5 months ago     516MB
+hello-world           latest    feb5d9fea6a5   8 months ago     13.3kB
+centos                latest    5d0da3dc9764   9 months ago     231MB
+portainer/portainer   latest    580c0e4e98b0   15 months ago    79.1MB
+elasticsearch         latest    5acf0e8da90b   3 years ago      486MB
+
+~~~
+
+# 容器数据卷
+
+# Docker Files
+
+# Docker 网络
+
+# 未完待续

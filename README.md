@@ -1556,6 +1556,362 @@ elasticsearch         latest    5acf0e8da90b   3 years ago      486MB
 
 # 容器数据卷
 
+## 什么是容器数据卷
+
+容器之间有一个数据共享技术！Docker容器中产生的数据，同步到本地！这就是卷技术，目录的挂载，我们将容器内的目录，挂载到linux中
+
+**总结一句话：容器的持久化和同步操作，容器间也可以进行数据共享**
+
+## 使用数据卷
+
+> 方式一使用命令来挂载 -v
+
+~~~shell
+docker run -it -v 主机目录:容器内目录
+~~~
+
+~~~shell
+#测试
+[root@iZfdjfsqewlu0jZ home]# docker run -it -v /home/Test00:/home centos /bin/bash
+
+#查看详情
+[root@iZfdjfsqewlu0jZ Test00]# docker inspect 7b5b225c937d
+[
+    {
+        "Id": "7b5b225c937da2f62d8549f388cd2c7a9138ebe822b9492aae33ab4509c69bff",
+        "Created": "2022-06-23T02:28:08.783347075Z",
+        "Path": "/bin/bash",
+        "Args": [],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3315695,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2022-06-23T02:28:09.239893528Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:5d0da3dc976460b72c77d94c8a1ad043720b0416bfc16c52c45d4847e53fadb6",
+        "ResolvConfPath": "/var/lib/docker/containers/7b5b225c937da2f62d8549f388cd2c7a9138ebe822b9492aae33ab4509c69bff/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/7b5b225c937da2f62d8549f388cd2c7a9138ebe822b9492aae33ab4509c69bff/hostname",
+        "HostsPath": "/var/lib/docker/containers/7b5b225c937da2f62d8549f388cd2c7a9138ebe822b9492aae33ab4509c69bff/hosts",
+        "LogPath": "/var/lib/docker/containers/7b5b225c937da2f62d8549f388cd2c7a9138ebe822b9492aae33ab4509c69bff/7b5b225c937da2f62d8549f388cd2c7a9138ebe822b9492aae33ab4509c69bff-json.log",
+        "Name": "/peaceful_shannon",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/home/Test00:/home"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "default",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "host",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "KernelMemory": 0,
+            "KernelMemoryTCP": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/16a4230beea64dbb849e2f41a26bb6924fad0b1088a441219a9835c12168a23c-init/diff:/var/lib/docker/overlay2/8c257a1ce0d2cc0a0b6de32a4852b90742f8dd8ba3282b58a7b0c657d0044a35/diff",
+                "MergedDir": "/var/lib/docker/overlay2/16a4230beea64dbb849e2f41a26bb6924fad0b1088a441219a9835c12168a23c/merged",
+                "UpperDir": "/var/lib/docker/overlay2/16a4230beea64dbb849e2f41a26bb6924fad0b1088a441219a9835c12168a23c/diff",
+                "WorkDir": "/var/lib/docker/overlay2/16a4230beea64dbb849e2f41a26bb6924fad0b1088a441219a9835c12168a23c/work"
+            },
+            "Name": "overlay2"
+        },
+-----------------------------------------------------------------------------------------------------------
+ 挂载详情
+ "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/Test00",   主机地址
+                "Destination": "/home",	    docker容器内的地址
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+-----------------------------------------------------------------------------------------------------------
+        "Config": {
+            "Hostname": "7b5b225c937d",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "Image": "centos",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "org.label-schema.build-date": "20210915",
+                "org.label-schema.license": "GPLv2",
+                "org.label-schema.name": "CentOS Base Image",
+                "org.label-schema.schema-version": "1.0",
+                "org.label-schema.vendor": "CentOS"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "8d342af8af78353d2680abd62de4c8a886fd108a8cc86b25bc0bec39bfaa7eb6",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/8d342af8af78",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "7ea08569fb0be809b0c051494635273b9a9ba99f66b92f5bcd386fab249bde54",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.5",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "02:42:ac:11:00:05",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "9dbbbcb0d160f07a52704382b4cf4495417afc0b572ee873704744b77f0ec8f6",
+                    "EndpointID": "7ea08569fb0be809b0c051494635273b9a9ba99f66b92f5bcd386fab249bde54",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.5",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "02:42:ac:11:00:05",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+
+~~~
+
+反向测试
+
+~~~
+1.停止容器，往真实机中写入数据
+
+2.开始容器，查看数据已经被写入了本地文件中
+~~~
+
+**好处：我们以后修改只需要在本地修改即可，容器内会自动同步**
+
+## 实战：部署mysql
+
+思考：mysql数据持久化问题
+
+~~~shell
+#获取镜像
+
+#运行容器，需要做数据挂载（安装启动mysql需要配置密码）
+#官方测试 docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag
+[root@iZfdjfsqewlu0jZ /]# docker run  -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home//mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --name mysql00 mysql:5.7
+20bb428b3abc6fc4a2d02f420ab5438f1984ecb25ca15f6754e14f71b3aaf25b
+
+#docker run（启动容器）  -d（后台运行） -p 3310:3306（端口映射） -v /home/mysql/conf:/etc/mysql/conf.d -v /home//mysql/data:/var/lib/mysql（两个都是目录映射） -e MYSQL_ROOT_PASSWORD=123456（设置密码） --name mysql00（设置密码）mysql:5.7（镜像名字：版本）
+
+
+~~~
+
+测试连接
+
+![](https://pic.imgdb.cn/item/62b3ed9309475431297b3f9f.jpg)
+
+~~~shell
+#创建一个数据库，查看映射是否成功
+~~~
+
+## 具名和匿名挂载
+
+~~~shell
+#匿名挂载
+-v 容器内路径
+docker run -d -P --name nginx01 -v /etc/nginx nginx
+
+#查看卷的信息
+[root@iZfdjfsqewlu0jZ /]# docker volume --help
+
+Usage:  docker volume COMMAND
+
+Manage volumes
+
+Commands:
+  create      Create a volume
+  inspect     Display detailed information on one or more volumes
+  ls          List volumes
+  prune       Remove all unused local volumes
+  rm          Remove one or more volumes
+
+Run 'docker volume COMMAND --help' for more information on a command.
+#查看卷的具体信息
+[root@iZfdjfsqewlu0jZ /]# docker volume ls
+DRIVER    VOLUME NAME
+local     c939aca226928b72baaac8259f429d48f6c0fbddecce846010f1dab20502b67b
+local     e95d7c04701d510efb088ca06e019652c7be250021c4dc52a2c6428905bfa919
+#↑这个就是匿名挂载只有只有容器内的路径，没有容器外的路径
+
+#具名挂载
+[root@iZfdjfsqewlu0jZ /]# docker run -d -P --name nginx03 -v juming-nginx:/etc/nginx nginx
+14b6abc6ad616dcf8eb1220bd6d6d65504f29b14c7e5e565ff8816bc52a72690
+[root@iZfdjfsqewlu0jZ /]# docker volume ls
+DRIVER    VOLUME NAME
+local     c939aca226928b72baaac8259f429d48f6c0fbddecce846010f1dab20502b67b
+local     e95d7c04701d510efb088ca06e019652c7be250021c4dc52a2c6428905bfa919
+#具名挂载卷
+local     juming-nginx
+#查看下具体的卷的对应信息
+[root@iZfdjfsqewlu0jZ /]# docker volume inspect juming-nginx
+[
+    {
+        "CreatedAt": "2022-06-23T16:05:31+08:00",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/juming-nginx/_data",
+        "Name": "juming-nginx",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+
+~~~
+
+**所有docker未指定卷的的情况下，目录默认都是 /var/lib/docker/volumes/xxxx/_data 下**
+
+总结：我们大多情况下使用的都是具名挂载，这样可以方便的让我们找到卷的位置
+
+~~~shell
+#如何确定是具名挂载还是匿名挂载或者指定挂载
+-v 卷名 #匿名挂载
+-v 名字:卷名#具名挂载
+-v 卷名:卷名#指定挂载
+~~~
+
+拓展
+
+~~~shell
+#通过-v juming-nginx:/etc/nginx:ro或者rw改变读写权限
+#ro==readonly只读
+#rw==readwrite可读可写
+#一旦设置了权限，我们挂载出来的内容就有了限定
+[root@iZfdjfsqewlu0jZ /]# docker run -d -P --name nginx03 -v juming-nginx:/etc/nginx:ro nginx
+[root@iZfdjfsqewlu0jZ /]# docker run -d -P --name nginx03 -v juming-nginx:/etc/nginx:rw nginx
+#ro只能通过宿主机来改变
+#rw容器内也可进行改变
+~~~
+
+## 初识Docker Files
+
+
+
 # Docker Files
 
 # Docker 网络

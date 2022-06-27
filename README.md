@@ -1910,7 +1910,307 @@ local     juming-nginx
 
 ## 初识Docker Files
 
+Docker Files就是用来构建docker镜像的构建文件！命令和脚本
 
+通过脚本可以生成镜像，镜像是一层一层的，脚本的每一个命令都是一层
+
+~~~shell
+#测试
+#创建一个dockerfile
+#文件中的内容
+#格式 指令（大写） 参数
+FROM centos
+VOLUME ["volume01","volume02"]
+CMD echo "----emd-----"
+CMD /bin/bash
+#这里的每个命令就是一层
+
+#生成自己的镜像
+[root@iZfdjfsqewlu0jZ docker-test-volume]# docker build -f dockerFile1 -t liyouxiu/centos .
+Sending build context to Docker daemon  2.048kB
+Step 1/4 : FROM centos
+ ---> 5d0da3dc9764
+Step 2/4 : VOLUME ["volume01","volume02"]
+ ---> Running in 14c1ce5e35c9
+Removing intermediate container 14c1ce5e35c9
+ ---> 09e0dfe6348e
+Step 3/4 : CMD echo "----end-----"
+ ---> Running in cfb7b96150cd
+Removing intermediate container cfb7b96150cd
+ ---> c352920bfd7c
+Step 4/4 : CMD /bin/bash
+ ---> Running in 4dcfea657aaa
+Removing intermediate container 4dcfea657aaa
+ ---> d6f169f35ab0
+Successfully built d6f169f35ab0
+Successfully tagged liyouxiu/centos:latest
+
+~~~
+
+~~~shell
+#启动自己的容器
+[root@b359ddb1f156 /]# ls  -l
+total 0
+lrwxrwxrwx   1 root root   7 Nov  3  2020 bin -> usr/bin
+drwxr-xr-x   5 root root 360 Jun 27 14:13 dev
+drwxr-xr-x   1 root root  66 Jun 27 14:13 etc
+drwxr-xr-x   2 root root   6 Nov  3  2020 home
+lrwxrwxrwx   1 root root   7 Nov  3  2020 lib -> usr/lib
+lrwxrwxrwx   1 root root   9 Nov  3  2020 lib64 -> usr/lib64
+drwx------   2 root root   6 Sep 15  2021 lost+found
+drwxr-xr-x   2 root root   6 Nov  3  2020 media
+drwxr-xr-x   2 root root   6 Nov  3  2020 mnt
+drwxr-xr-x   2 root root   6 Nov  3  2020 opt
+dr-xr-xr-x 162 root root   0 Jun 27 14:13 proc
+dr-xr-x---   2 root root 162 Sep 15  2021 root
+drwxr-xr-x  11 root root 163 Sep 15  2021 run
+lrwxrwxrwx   1 root root   8 Nov  3  2020 sbin -> usr/sbin
+drwxr-xr-x   2 root root   6 Nov  3  2020 srv
+dr-xr-xr-x  13 root root   0 Jun 14 07:06 sys
+drwxrwxrwt   7 root root 171 Sep 15  2021 tmp
+drwxr-xr-x  12 root root 144 Sep 15  2021 usr
+drwxr-xr-x  20 root root 262 Sep 15  2021 var
+drwxr-xr-x   2 root root   6 Jun 27 14:13 volume01（这两个就是生成镜像时自动挂载的目录）数据卷目录
+drwxr-xr-x   2 root root   6 Jun 27 14:13 volume02（这两个就是生成镜像时自动挂载的目录）数据卷目录
+
+#这个卷一定是和外部同步的目录
+[root@iZfdjfsqewlu0jZ ~]# docker inspect 5445e532a850
+[
+    {
+        "Id": "5445e532a85078590164b00bae041f60b56e5a2e989e76668c363a59b3643dc4",
+        "Created": "2022-06-27T14:20:35.319474947Z",
+        "Path": "/bin/bash",
+        "Args": [],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 2103703,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2022-06-27T14:20:35.837574249Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:d6f169f35ab0b8698d1751a02dc08a19999c1532a52c1249564fd4caddf8792c",
+        "ResolvConfPath": "/var/lib/docker/containers/5445e532a85078590164b00bae041f60b56e5a2e989e76668c363a59b3643dc4/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/5445e532a85078590164b00bae041f60b56e5a2e989e76668c363a59b3643dc4/hostname",
+        "HostsPath": "/var/lib/docker/containers/5445e532a85078590164b00bae041f60b56e5a2e989e76668c363a59b3643dc4/hosts",
+        "LogPath": "/var/lib/docker/containers/5445e532a85078590164b00bae041f60b56e5a2e989e76668c363a59b3643dc4/5445e532a85078590164b00bae041f60b56e5a2e989e76668c363a59b3643dc4-json.log",
+        "Name": "/heuristic_rubin",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "default",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "host",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "KernelMemory": 0,
+            "KernelMemoryTCP": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/6e4f29c3d39129c169f1d0fef30a153f041f5c2cac1d406a20d41fbce21e410b-init/diff:/var/lib/docker/overlay2/8c257a1ce0d2cc0a0b6de32a4852b90742f8dd8ba3282b58a7b0c657d0044a35/diff",
+                "MergedDir": "/var/lib/docker/overlay2/6e4f29c3d39129c169f1d0fef30a153f041f5c2cac1d406a20d41fbce21e410b/merged",
+                "UpperDir": "/var/lib/docker/overlay2/6e4f29c3d39129c169f1d0fef30a153f041f5c2cac1d406a20d41fbce21e410b/diff",
+                "WorkDir": "/var/lib/docker/overlay2/6e4f29c3d39129c169f1d0fef30a153f041f5c2cac1d406a20d41fbce21e410b/work"
+            },
+            "Name": "overlay2"
+        },
+-------------------------------------------------------------------------------------------------------      #个人的挂载目录  
+        "Mounts": [
+            {
+                "Type": "volume",
+                "Name": "99a06c0cbf224897ea6859c727e6b289d17e17012cae43cfa8cbf0e39367642c",
+                "Source": "/var/lib/docker/volumes/99a06c0cbf224897ea6859c727e6b289d17e17012cae43cfa8cbf0e39367642c/_data",
+                "Destination": "volume01",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            },
+            {
+                "Type": "volume",
+                "Name": "96d7e44947c3f1dbefbf96532c8a6fa394e999930ba225b6317fff2d7885bb0c",
+                "Source": "/var/lib/docker/volumes/96d7e44947c3f1dbefbf96532c8a6fa394e999930ba225b6317fff2d7885bb0c/_data",
+                "Destination": "volume02",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+-------------------------------------------------------------------------------------------------------
+        "Config": {
+            "Hostname": "5445e532a850",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "Image": "liyouxiu/centos",
+            "Volumes": {
+                "volume01": {},
+                "volume02": {}
+            },
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "org.label-schema.build-date": "20210915",
+                "org.label-schema.license": "GPLv2",
+                "org.label-schema.name": "CentOS Base Image",
+                "org.label-schema.schema-version": "1.0",
+                "org.label-schema.vendor": "CentOS"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "169d2ec7d1037186972ac4e6a410a8d1ffc8ca3a1acc74e9de2f6ff668e6a6ed",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/169d2ec7d103",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "8bbda1c4c2e3440000161611eaf819a8b56e8c6923da69a056270e88269c0352",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.9",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "02:42:ac:11:00:09",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "9dbbbcb0d160f07a52704382b4cf4495417afc0b572ee873704744b77f0ec8f6",
+                    "EndpointID": "8bbda1c4c2e3440000161611eaf819a8b56e8c6923da69a056270e88269c0352",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.9",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "02:42:ac:11:00:09",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+
+~~~
+
+这种方式未来使用的非常多，因为我们会构建自己的镜像，假设构建镜像的时候没有挂载卷，要手动镜像挂载 -v 卷名：容器内路径
+
+## 数据卷容器
+
+两个或多个容器内数据共享
 
 # Docker Files
 

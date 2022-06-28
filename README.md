@@ -2210,9 +2210,544 @@ drwxr-xr-x   2 root root   6 Jun 27 14:13 volume02（这两个就是生成镜像
 
 ## 数据卷容器
 
-两个或多个容器内数据共享
+两个或多个容器内数据共享，多个容器数据同步
+
+![](https://pic.imgdb.cn/item/62baa2471d64b0706678952d.jpg)
+
+~~~shell
+#测试
+#启动三个镜像容器
+#启动父镜像
+[root@iZfdjfsqewlu0jZ ~]# docker run -it --name docker01 liyouxiu/centos
+[root@717305d6a0a9 /]# ls -l
+total 0
+lrwxrwxrwx   1 root root   7 Nov  3  2020 bin -> usr/bin
+drwxr-xr-x   5 root root 360 Jun 28 06:44 dev
+drwxr-xr-x   1 root root  66 Jun 28 06:44 etc
+drwxr-xr-x   2 root root   6 Nov  3  2020 home
+lrwxrwxrwx   1 root root   7 Nov  3  2020 lib -> usr/lib
+lrwxrwxrwx   1 root root   9 Nov  3  2020 lib64 -> usr/lib64
+drwx------   2 root root   6 Sep 15  2021 lost+found
+drwxr-xr-x   2 root root   6 Nov  3  2020 media
+drwxr-xr-x   2 root root   6 Nov  3  2020 mnt
+drwxr-xr-x   2 root root   6 Nov  3  2020 opt
+dr-xr-xr-x 133 root root   0 Jun 28 06:44 proc
+dr-xr-x---   2 root root 162 Sep 15  2021 root
+drwxr-xr-x  11 root root 163 Sep 15  2021 run
+lrwxrwxrwx   1 root root   8 Nov  3  2020 sbin -> usr/sbin
+drwxr-xr-x   2 root root   6 Nov  3  2020 srv
+dr-xr-xr-x  13 root root   0 Jun 14 07:06 sys
+drwxrwxrwt   7 root root 171 Sep 15  2021 tmp
+drwxr-xr-x  12 root root 144 Sep 15  2021 usr
+drwxr-xr-x  20 root root 262 Sep 15  2021 var
+drwxr-xr-x   2 root root   6 Jun 28 06:44 volume01
+drwxr-xr-x   2 root root   6 Jun 28 06:44 volume02
+#启动另一个镜像继承父镜像数据
+[root@iZfdjfsqewlu0jZ ~]# docker run -it --name docker02 --volumes-from docker01 liyouxiu/centos
+[root@e7e09aa006c9 /]# ls -l
+total 0
+lrwxrwxrwx   1 root root   7 Nov  3  2020 bin -> usr/bin
+drwxr-xr-x   5 root root 360 Jun 28 06:47 dev
+drwxr-xr-x   1 root root  66 Jun 28 06:47 etc
+drwxr-xr-x   2 root root   6 Nov  3  2020 home
+lrwxrwxrwx   1 root root   7 Nov  3  2020 lib -> usr/lib
+lrwxrwxrwx   1 root root   9 Nov  3  2020 lib64 -> usr/lib64
+drwx------   2 root root   6 Sep 15  2021 lost+found
+drwxr-xr-x   2 root root   6 Nov  3  2020 media
+drwxr-xr-x   2 root root   6 Nov  3  2020 mnt
+drwxr-xr-x   2 root root   6 Nov  3  2020 opt
+dr-xr-xr-x 131 root root   0 Jun 28 06:47 proc
+dr-xr-x---   2 root root 162 Sep 15  2021 root
+drwxr-xr-x  11 root root 163 Sep 15  2021 run
+lrwxrwxrwx   1 root root   8 Nov  3  2020 sbin -> usr/sbin
+drwxr-xr-x   2 root root   6 Nov  3  2020 srv
+dr-xr-xr-x  13 root root   0 Jun 14 07:06 sys
+drwxrwxrwt   7 root root 171 Sep 15  2021 tmp
+drwxr-xr-x  12 root root 144 Sep 15  2021 usr
+drwxr-xr-x  20 root root 262 Sep 15  2021 var
+drwxr-xr-x   2 root root   6 Jun 28 06:44 volume01
+drwxr-xr-x   2 root root   6 Jun 28 06:44 volume02
+
+#测试数据同步
+在父容器中创建文件可以在另一个容器中看到
+#父容器
+[root@iZfdjfsqewlu0jZ ~]# docker attach docker01
+[root@717305d6a0a9 /]# cd volume01
+[root@717305d6a0a9 volume01]# touch UpData.txt
+[root@717305d6a0a9 volume01]# vi UpData.txt 
+[root@717305d6a0a9 volume01]# cat UpData.txt 
+shujutongbuceshi 
+2022.6.28
+
+#子容器
+[root@e7e09aa006c9 /]# cd volume01
+[root@e7e09aa006c9 volume01]# ls
+UpData.txt
+[root@e7e09aa006c9 volume01]# cat UpData.txt 
+shujutongbuceshi 
+2022.6.28
+
+#数据已同步
+#数据的同步还是双向的
+~~~
+
+删除父容器之后其他的容器的数据不会丢失，因为这是卷的挂载
 
 # Docker Files
+
+## Docker file介绍
+
+Dockerfile是用来构建docker镜像的文件！命令参数脚本
+
+构建步骤
+
+1.编写有一个dockerfile文件
+
+2.docker build构建成为一个镜像
+
+3.docker run运行镜像
+
+4.docker push发布镜像（docker hub，阿里云镜像仓库）
+
+## Docker file的构建过程
+
+**基础知识**
+
+1.每个关键字都是大写字母
+
+2.执行是从上到下顺序执行的
+
+3.#表示注释
+
+4.每一个指令都会创建提交一个新的镜像，并提交
+
+![](https://pic.imgdb.cn/item/62bb00e41d64b0706606159b.jpg)
+
+docker file是面向开发的，我们以后要发布项目，作镜像，就要编写docker file！
+
+Docker镜像逐渐成为了企业的交付标准
+
+步骤：开发，部署，运维
+
+Docker file：构建文件，定义了一切步骤，源代码
+
+Docker images：通过Docker file构建生成的镜像，最终发布和运行的产品
+
+Docker容器：容器就是镜像运行起来提供服务
+
+## Docker file指令
+
+```shell
+FROM        #基础镜像，一切从这里开始构建
+MAINTAINER  #镜像是谁写的 姓名+邮箱
+RUN         #镜像构建的时候需要运行的命令
+ADD			#步骤，tomcat镜像，这个tomcat的压缩包！添加内容
+WORKDIR		#镜像的工作目录
+VOLUME		#挂载的目录位置
+EXPOSE		#暴露端口配置
+CMD 		#指定这个容器启动时运行的命令，只有最后一个会生效，可被替代
+ENTRYPOINT	#指定这个容器启动时运行的命令，可以追加命令
+ONBUILD		#当构建一个被继承DockerFile这个时候就会运行ONBUILD指令，触发指令
+COPY		#将我们的文件拷贝到镜像中
+ENV			#构建的时候设置环境变量
+```
+
+
+
+![](https://pic.imgdb.cn/item/62bb0bed1d64b07066170d01.jpg)
+
+## 测试
+
+Docker Hub中大多数的镜像都是来自FROM scratch
+
+![](https://pic.imgdb.cn/item/62bb0f431d64b070661b7386.jpg)
+
+> 创建一个自己的centos
+
+~~~shell
+#编写Docker File文件
+[root@iZfdjfsqewlu0jZ DockerFile]# cat MyDockerFile_Centos00 
+FROM centos:7
+MAINTAINER liyouxiu<sunsunsun5675@foxmail.com>
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+
+RUN yum -y install vim
+RUN yum -y install net-tools
+
+EXPOSE 80
+CMD echo $MYPATH
+CMD echo "---end---"
+CMD /bin/bash
+
+#生成镜像
+#可能出现的错误：centos8维护时间较短所以可以把版本改成centos:7
+[root@iZfdjfsqewlu0jZ DockerFile]# docker build -f MyDockerFile_Centos00 -t mycentos:0.1 .
+Sending build context to Docker daemon  2.048kB
+Step 1/10 : FROM centos:7
+7: Pulling from library/centos
+2d473b07cdd5: Pull complete 
+Digest: sha256:9d4bcbbb213dfd745b58be38b13b996ebb5ac315fe75711bd618426a630e0987
+Status: Downloaded newer image for centos:7
+ ---> eeb6ee3f44bd
+Step 2/10 : MAINTAINER liyouxiu<sunsunsun5675@foxmail.com>
+ ---> Running in bd322c57861a
+Removing intermediate container bd322c57861a
+ ---> 01276ac464a7
+Step 3/10 : ENV MYPATH /usr/local
+ ---> Running in a9305e1df382
+Removing intermediate container a9305e1df382
+ ---> adccc12c90d6
+Step 4/10 : WORKDIR $MYPATH
+ ---> Running in aeeb78e1af6e
+Removing intermediate container aeeb78e1af6e
+ ---> fd4b70bed1a0
+Step 5/10 : RUN yum -y install vim
+ ---> Running in 72e52e53329e
+Loaded plugins: fastestmirror, ovl
+Determining fastest mirrors
+ * base: mirrors.aliyun.com
+ * extras: mirrors.aliyun.com
+ * updates: mirrors.aliyun.com
+Resolving Dependencies
+--> Running transaction check
+---> Package vim-enhanced.x86_64 2:7.4.629-8.el7_9 will be installed
+--> Processing Dependency: vim-common = 2:7.4.629-8.el7_9 for package: 2:vim-enhanced-7.4.629-8.el7_9.x86_64
+--> Processing Dependency: which for package: 2:vim-enhanced-7.4.629-8.el7_9.x86_64
+--> Processing Dependency: perl(:MODULE_COMPAT_5.16.3) for package: 2:vim-enhanced-7.4.629-8.el7_9.x86_64
+--> Processing Dependency: libperl.so()(64bit) for package: 2:vim-enhanced-7.4.629-8.el7_9.x86_64
+--> Processing Dependency: libgpm.so.2()(64bit) for package: 2:vim-enhanced-7.4.629-8.el7_9.x86_64
+--> Running transaction check
+---> Package gpm-libs.x86_64 0:1.20.7-6.el7 will be installed
+---> Package perl.x86_64 4:5.16.3-299.el7_9 will be installed
+--> Processing Dependency: perl(Socket) >= 1.3 for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Scalar::Util) >= 1.10 for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl-macros for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(threads::shared) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(threads) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(constant) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Time::Local) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Time::HiRes) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Storable) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Socket) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Scalar::Util) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Pod::Simple::XHTML) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Pod::Simple::Search) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Getopt::Long) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Filter::Util::Call) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(File::Temp) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(File::Spec::Unix) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(File::Spec::Functions) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(File::Spec) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(File::Path) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Exporter) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Cwd) for package: 4:perl-5.16.3-299.el7_9.x86_64
+--> Processing Dependency: perl(Carp) for package: 4:perl-5.16.3-299.el7_9.x86_64
+---> Package perl-libs.x86_64 4:5.16.3-299.el7_9 will be installed
+---> Package vim-common.x86_64 2:7.4.629-8.el7_9 will be installed
+--> Processing Dependency: vim-filesystem for package: 2:vim-common-7.4.629-8.el7_9.x86_64
+---> Package which.x86_64 0:2.20-7.el7 will be installed
+--> Running transaction check
+---> Package perl-Carp.noarch 0:1.26-244.el7 will be installed
+---> Package perl-Exporter.noarch 0:5.68-3.el7 will be installed
+---> Package perl-File-Path.noarch 0:2.09-2.el7 will be installed
+---> Package perl-File-Temp.noarch 0:0.23.01-3.el7 will be installed
+---> Package perl-Filter.x86_64 0:1.49-3.el7 will be installed
+---> Package perl-Getopt-Long.noarch 0:2.40-3.el7 will be installed
+--> Processing Dependency: perl(Pod::Usage) >= 1.14 for package: perl-Getopt-Long-2.40-3.el7.noarch
+--> Processing Dependency: perl(Text::ParseWords) for package: perl-Getopt-Long-2.40-3.el7.noarch
+---> Package perl-PathTools.x86_64 0:3.40-5.el7 will be installed
+---> Package perl-Pod-Simple.noarch 1:3.28-4.el7 will be installed
+--> Processing Dependency: perl(Pod::Escapes) >= 1.04 for package: 1:perl-Pod-Simple-3.28-4.el7.noarch
+--> Processing Dependency: perl(Encode) for package: 1:perl-Pod-Simple-3.28-4.el7.noarch
+---> Package perl-Scalar-List-Utils.x86_64 0:1.27-248.el7 will be installed
+---> Package perl-Socket.x86_64 0:2.010-5.el7 will be installed
+---> Package perl-Storable.x86_64 0:2.45-3.el7 will be installed
+---> Package perl-Time-HiRes.x86_64 4:1.9725-3.el7 will be installed
+---> Package perl-Time-Local.noarch 0:1.2300-2.el7 will be installed
+---> Package perl-constant.noarch 0:1.27-2.el7 will be installed
+---> Package perl-macros.x86_64 4:5.16.3-299.el7_9 will be installed
+---> Package perl-threads.x86_64 0:1.87-4.el7 will be installed
+---> Package perl-threads-shared.x86_64 0:1.43-6.el7 will be installed
+---> Package vim-filesystem.x86_64 2:7.4.629-8.el7_9 will be installed
+--> Running transaction check
+---> Package perl-Encode.x86_64 0:2.51-7.el7 will be installed
+---> Package perl-Pod-Escapes.noarch 1:1.04-299.el7_9 will be installed
+---> Package perl-Pod-Usage.noarch 0:1.63-3.el7 will be installed
+--> Processing Dependency: perl(Pod::Text) >= 3.15 for package: perl-Pod-Usage-1.63-3.el7.noarch
+--> Processing Dependency: perl-Pod-Perldoc for package: perl-Pod-Usage-1.63-3.el7.noarch
+---> Package perl-Text-ParseWords.noarch 0:3.29-4.el7 will be installed
+--> Running transaction check
+---> Package perl-Pod-Perldoc.noarch 0:3.20-4.el7 will be installed
+--> Processing Dependency: perl(parent) for package: perl-Pod-Perldoc-3.20-4.el7.noarch
+--> Processing Dependency: perl(HTTP::Tiny) for package: perl-Pod-Perldoc-3.20-4.el7.noarch
+--> Processing Dependency: groff-base for package: perl-Pod-Perldoc-3.20-4.el7.noarch
+---> Package perl-podlators.noarch 0:2.5.1-3.el7 will be installed
+--> Running transaction check
+---> Package groff-base.x86_64 0:1.22.2-8.el7 will be installed
+---> Package perl-HTTP-Tiny.noarch 0:0.033-3.el7 will be installed
+---> Package perl-parent.noarch 1:0.225-244.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                    Arch       Version                Repository   Size
+================================================================================
+Installing:
+ vim-enhanced               x86_64     2:7.4.629-8.el7_9      updates     1.1 M
+Installing for dependencies:
+ gpm-libs                   x86_64     1.20.7-6.el7           base         32 k
+ groff-base                 x86_64     1.22.2-8.el7           base        942 k
+ perl                       x86_64     4:5.16.3-299.el7_9     updates     8.0 M
+ perl-Carp                  noarch     1.26-244.el7           base         19 k
+ perl-Encode                x86_64     2.51-7.el7             base        1.5 M
+ perl-Exporter              noarch     5.68-3.el7             base         28 k
+ perl-File-Path             noarch     2.09-2.el7             base         26 k
+ perl-File-Temp             noarch     0.23.01-3.el7          base         56 k
+ perl-Filter                x86_64     1.49-3.el7             base         76 k
+ perl-Getopt-Long           noarch     2.40-3.el7             base         56 k
+ perl-HTTP-Tiny             noarch     0.033-3.el7            base         38 k
+ perl-PathTools             x86_64     3.40-5.el7             base         82 k
+ perl-Pod-Escapes           noarch     1:1.04-299.el7_9       updates      52 k
+ perl-Pod-Perldoc           noarch     3.20-4.el7             base         87 k
+ perl-Pod-Simple            noarch     1:3.28-4.el7           base        216 k
+ perl-Pod-Usage             noarch     1.63-3.el7             base         27 k
+ perl-Scalar-List-Utils     x86_64     1.27-248.el7           base         36 k
+ perl-Socket                x86_64     2.010-5.el7            base         49 k
+ perl-Storable              x86_64     2.45-3.el7             base         77 k
+ perl-Text-ParseWords       noarch     3.29-4.el7             base         14 k
+ perl-Time-HiRes            x86_64     4:1.9725-3.el7         base         45 k
+ perl-Time-Local            noarch     1.2300-2.el7           base         24 k
+ perl-constant              noarch     1.27-2.el7             base         19 k
+ perl-libs                  x86_64     4:5.16.3-299.el7_9     updates     690 k
+ perl-macros                x86_64     4:5.16.3-299.el7_9     updates      44 k
+ perl-parent                noarch     1:0.225-244.el7        base         12 k
+ perl-podlators             noarch     2.5.1-3.el7            base        112 k
+ perl-threads               x86_64     1.87-4.el7             base         49 k
+ perl-threads-shared        x86_64     1.43-6.el7             base         39 k
+ vim-common                 x86_64     2:7.4.629-8.el7_9      updates     5.9 M
+ vim-filesystem             x86_64     2:7.4.629-8.el7_9      updates      11 k
+ which                      x86_64     2.20-7.el7             base         41 k
+
+Transaction Summary
+================================================================================
+Install  1 Package (+32 Dependent packages)
+
+Total download size: 19 M
+Installed size: 63 M
+Downloading packages:
+warning: /var/cache/yum/x86_64/7/base/packages/gpm-libs-1.20.7-6.el7.x86_64.rpm: Header V3 RSA/SHA256 Signature, key ID f4a80eb5: NOKEY
+Public key for gpm-libs-1.20.7-6.el7.x86_64.rpm is not installed
+Public key for perl-5.16.3-299.el7_9.x86_64.rpm is not installed
+--------------------------------------------------------------------------------
+Total                                               17 MB/s |  19 MB  00:01     
+Retrieving key from file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+Importing GPG key 0xF4A80EB5:
+ Userid     : "CentOS-7 Key (CentOS 7 Official Signing Key) <security@centos.org>"
+ Fingerprint: 6341 ab27 53d7 8a78 a7c2 7bb1 24c6 a8a7 f4a8 0eb5
+ Package    : centos-release-7-9.2009.0.el7.centos.x86_64 (@CentOS)
+ From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : gpm-libs-1.20.7-6.el7.x86_64                                1/33 
+  Installing : 2:vim-filesystem-7.4.629-8.el7_9.x86_64                     2/33 
+  Installing : 2:vim-common-7.4.629-8.el7_9.x86_64                         3/33 
+  Installing : which-2.20-7.el7.x86_64                                     4/33 
+install-info: No such file or directory for /usr/share/info/which.info.gz
+  Installing : groff-base-1.22.2-8.el7.x86_64                              5/33 
+  Installing : 1:perl-parent-0.225-244.el7.noarch                          6/33 
+  Installing : perl-HTTP-Tiny-0.033-3.el7.noarch                           7/33 
+  Installing : perl-podlators-2.5.1-3.el7.noarch                           8/33 
+  Installing : perl-Pod-Perldoc-3.20-4.el7.noarch                          9/33 
+  Installing : 1:perl-Pod-Escapes-1.04-299.el7_9.noarch                   10/33 
+  Installing : perl-Encode-2.51-7.el7.x86_64                              11/33 
+  Installing : perl-Text-ParseWords-3.29-4.el7.noarch                     12/33 
+  Installing : perl-Pod-Usage-1.63-3.el7.noarch                           13/33 
+  Installing : 4:perl-macros-5.16.3-299.el7_9.x86_64                      14/33 
+  Installing : perl-Storable-2.45-3.el7.x86_64                            15/33 
+  Installing : perl-Exporter-5.68-3.el7.noarch                            16/33 
+  Installing : perl-constant-1.27-2.el7.noarch                            17/33 
+  Installing : perl-Socket-2.010-5.el7.x86_64                             18/33 
+  Installing : perl-Time-Local-1.2300-2.el7.noarch                        19/33 
+  Installing : perl-Carp-1.26-244.el7.noarch                              20/33 
+  Installing : perl-PathTools-3.40-5.el7.x86_64                           21/33 
+  Installing : perl-Scalar-List-Utils-1.27-248.el7.x86_64                 22/33 
+  Installing : 1:perl-Pod-Simple-3.28-4.el7.noarch                        23/33 
+  Installing : perl-File-Temp-0.23.01-3.el7.noarch                        24/33 
+  Installing : perl-File-Path-2.09-2.el7.noarch                           25/33 
+  Installing : perl-threads-shared-1.43-6.el7.x86_64                      26/33 
+  Installing : perl-threads-1.87-4.el7.x86_64                             27/33 
+  Installing : 4:perl-Time-HiRes-1.9725-3.el7.x86_64                      28/33 
+  Installing : perl-Filter-1.49-3.el7.x86_64                              29/33 
+  Installing : 4:perl-libs-5.16.3-299.el7_9.x86_64                        30/33 
+  Installing : perl-Getopt-Long-2.40-3.el7.noarch                         31/33 
+  Installing : 4:perl-5.16.3-299.el7_9.x86_64                             32/33 
+  Installing : 2:vim-enhanced-7.4.629-8.el7_9.x86_64                      33/33 
+  Verifying  : perl-HTTP-Tiny-0.033-3.el7.noarch                           1/33 
+  Verifying  : perl-threads-shared-1.43-6.el7.x86_64                       2/33 
+  Verifying  : perl-Storable-2.45-3.el7.x86_64                             3/33 
+  Verifying  : groff-base-1.22.2-8.el7.x86_64                              4/33 
+  Verifying  : perl-Exporter-5.68-3.el7.noarch                             5/33 
+  Verifying  : perl-constant-1.27-2.el7.noarch                             6/33 
+  Verifying  : perl-PathTools-3.40-5.el7.x86_64                            7/33 
+  Verifying  : 4:perl-macros-5.16.3-299.el7_9.x86_64                       8/33 
+  Verifying  : 2:vim-enhanced-7.4.629-8.el7_9.x86_64                       9/33 
+  Verifying  : 1:perl-parent-0.225-244.el7.noarch                         10/33 
+  Verifying  : perl-Socket-2.010-5.el7.x86_64                             11/33 
+  Verifying  : which-2.20-7.el7.x86_64                                    12/33 
+  Verifying  : 2:vim-filesystem-7.4.629-8.el7_9.x86_64                    13/33 
+  Verifying  : perl-File-Temp-0.23.01-3.el7.noarch                        14/33 
+  Verifying  : 1:perl-Pod-Simple-3.28-4.el7.noarch                        15/33 
+  Verifying  : perl-Time-Local-1.2300-2.el7.noarch                        16/33 
+  Verifying  : 1:perl-Pod-Escapes-1.04-299.el7_9.noarch                   17/33 
+  Verifying  : perl-Carp-1.26-244.el7.noarch                              18/33 
+  Verifying  : 2:vim-common-7.4.629-8.el7_9.x86_64                        19/33 
+  Verifying  : perl-Scalar-List-Utils-1.27-248.el7.x86_64                 20/33 
+  Verifying  : perl-Pod-Usage-1.63-3.el7.noarch                           21/33 
+  Verifying  : perl-Encode-2.51-7.el7.x86_64                              22/33 
+  Verifying  : perl-Pod-Perldoc-3.20-4.el7.noarch                         23/33 
+  Verifying  : perl-podlators-2.5.1-3.el7.noarch                          24/33 
+  Verifying  : 4:perl-5.16.3-299.el7_9.x86_64                             25/33 
+  Verifying  : perl-File-Path-2.09-2.el7.noarch                           26/33 
+  Verifying  : perl-threads-1.87-4.el7.x86_64                             27/33 
+  Verifying  : 4:perl-Time-HiRes-1.9725-3.el7.x86_64                      28/33 
+  Verifying  : gpm-libs-1.20.7-6.el7.x86_64                               29/33 
+  Verifying  : perl-Filter-1.49-3.el7.x86_64                              30/33 
+  Verifying  : perl-Getopt-Long-2.40-3.el7.noarch                         31/33 
+  Verifying  : perl-Text-ParseWords-3.29-4.el7.noarch                     32/33 
+  Verifying  : 4:perl-libs-5.16.3-299.el7_9.x86_64                        33/33 
+
+Installed:
+  vim-enhanced.x86_64 2:7.4.629-8.el7_9                                         
+
+Dependency Installed:
+  gpm-libs.x86_64 0:1.20.7-6.el7                                                
+  groff-base.x86_64 0:1.22.2-8.el7                                              
+  perl.x86_64 4:5.16.3-299.el7_9                                                
+  perl-Carp.noarch 0:1.26-244.el7                                               
+  perl-Encode.x86_64 0:2.51-7.el7                                               
+  perl-Exporter.noarch 0:5.68-3.el7                                             
+  perl-File-Path.noarch 0:2.09-2.el7                                            
+  perl-File-Temp.noarch 0:0.23.01-3.el7                                         
+  perl-Filter.x86_64 0:1.49-3.el7                                               
+  perl-Getopt-Long.noarch 0:2.40-3.el7                                          
+  perl-HTTP-Tiny.noarch 0:0.033-3.el7                                           
+  perl-PathTools.x86_64 0:3.40-5.el7                                            
+  perl-Pod-Escapes.noarch 1:1.04-299.el7_9                                      
+  perl-Pod-Perldoc.noarch 0:3.20-4.el7                                          
+  perl-Pod-Simple.noarch 1:3.28-4.el7                                           
+  perl-Pod-Usage.noarch 0:1.63-3.el7                                            
+  perl-Scalar-List-Utils.x86_64 0:1.27-248.el7                                  
+  perl-Socket.x86_64 0:2.010-5.el7                                              
+  perl-Storable.x86_64 0:2.45-3.el7                                             
+  perl-Text-ParseWords.noarch 0:3.29-4.el7                                      
+  perl-Time-HiRes.x86_64 4:1.9725-3.el7                                         
+  perl-Time-Local.noarch 0:1.2300-2.el7                                         
+  perl-constant.noarch 0:1.27-2.el7                                             
+  perl-libs.x86_64 4:5.16.3-299.el7_9                                           
+  perl-macros.x86_64 4:5.16.3-299.el7_9                                         
+  perl-parent.noarch 1:0.225-244.el7                                            
+  perl-podlators.noarch 0:2.5.1-3.el7                                           
+  perl-threads.x86_64 0:1.87-4.el7                                              
+  perl-threads-shared.x86_64 0:1.43-6.el7                                       
+  vim-common.x86_64 2:7.4.629-8.el7_9                                           
+  vim-filesystem.x86_64 2:7.4.629-8.el7_9                                       
+  which.x86_64 0:2.20-7.el7                                                     
+
+Complete!
+Removing intermediate container 72e52e53329e
+ ---> b942a0b2690b
+Step 6/10 : RUN yum -y install net-tools
+ ---> Running in 8d2eea381d8a
+Loaded plugins: fastestmirror, ovl
+Loading mirror speeds from cached hostfile
+ * base: mirrors.aliyun.com
+ * extras: mirrors.aliyun.com
+ * updates: mirrors.aliyun.com
+Resolving Dependencies
+--> Running transaction check
+---> Package net-tools.x86_64 0:2.0-0.25.20131004git.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package         Arch         Version                          Repository  Size
+================================================================================
+Installing:
+ net-tools       x86_64       2.0-0.25.20131004git.el7         base       306 k
+
+Transaction Summary
+================================================================================
+Install  1 Package
+
+Total download size: 306 k
+Installed size: 917 k
+Downloading packages:
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : net-tools-2.0-0.25.20131004git.el7.x86_64                    1/1 
+  Verifying  : net-tools-2.0-0.25.20131004git.el7.x86_64                    1/1 
+
+Installed:
+  net-tools.x86_64 0:2.0-0.25.20131004git.el7                                   
+
+Complete!
+Removing intermediate container 8d2eea381d8a
+ ---> 9d6083c62501
+Step 7/10 : EXPOSE 80
+ ---> Running in a391a5f4f8fe
+Removing intermediate container a391a5f4f8fe
+ ---> 98e846b16dcf
+Step 8/10 : CMD echo $MYPATH
+ ---> Running in bd99eda3b20e
+Removing intermediate container bd99eda3b20e
+ ---> 72c9477bf46f
+Step 9/10 : CMD echo "---end---"
+ ---> Running in bdcb94eb5dfd
+Removing intermediate container bdcb94eb5dfd
+ ---> ced40ebc13d3
+Step 10/10 : CMD /bin/bash
+ ---> Running in f21389152c0d
+Removing intermediate container f21389152c0d
+ ---> bd8f2448df1a
+Successfully built bd8f2448df1a
+Successfully tagged mycentos:0.1
+~~~
+
+~~~shell
+#查看构建过程
+[root@iZfdjfsqewlu0jZ ~]# docker history bd8f2448df1a
+IMAGE          CREATED          CREATED BY                                      SIZE      COMMENT
+bd8f2448df1a   19 minutes ago   /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "/bin…   0B        
+ced40ebc13d3   19 minutes ago   /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "echo…   0B        
+72c9477bf46f   19 minutes ago   /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "echo…   0B        
+98e846b16dcf   19 minutes ago   /bin/sh -c #(nop)  EXPOSE 80                    0B        
+9d6083c62501   19 minutes ago   /bin/sh -c yum -y install net-tools             171MB     
+b942a0b2690b   20 minutes ago   /bin/sh -c yum -y install vim                   226MB     
+fd4b70bed1a0   20 minutes ago   /bin/sh -c #(nop) WORKDIR /usr/local            0B        
+adccc12c90d6   20 minutes ago   /bin/sh -c #(nop)  ENV MYPATH=/usr/local        0B        
+01276ac464a7   20 minutes ago   /bin/sh -c #(nop)  MAINTAINER liyouxiu<sunsu…   0B        
+eeb6ee3f44bd   9 months ago     /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B        
+<missing>      9 months ago     /bin/sh -c #(nop)  LABEL org.label-schema.sc…   0B        
+<missing>      9 months ago     /bin/sh -c #(nop) ADD file:b3ebbe8bd304723d4…   204MB     
+
+~~~
+
+> CMD和ENTRYPOINT的区别
+
+~~~shell
+CMD 		#指定这个容器启动时运行的命令，只有最后一个会生效，可被替代
+ENTRYPOINT	#指定这个容器启动时运行的命令，可以追加命令
+~~~
+
+
 
 # Docker 网络
 

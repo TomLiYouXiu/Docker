@@ -3280,7 +3280,98 @@ out.println("你的 IP 地址 " + request.getRemoteAddr());
 
 
 
+## 镜像的发布
+
+> docker hub
+
+~~~shell
+地址：https://hub.docker.com/
+1.注册账号
+2.在我们服务器上提交自己的镜像
+	[root@iZfdjfsqewlu0jZ ~]# docker login --help
+
+	Usage:  docker login [OPTIONS] [SERVER]
+
+	Log in to a Docker registry.
+	If no server is specified, the default is defined by the daemon.
+
+	Options:
+ 	 -p, --password string   Password
+      --password-stdin    Take the password from stdin
+ 	 -u, --username string   Username
+ 	 #通过docker login -u -p登录
+3.提交镜像
+	3.1修改docker镜像的tag ：docker tag 镜像id 你的账户名/镜像仓库名:tag名
+	3.2提交：docker push 你的账户名/镜像仓库名:tag名 or 本地名字
+	
+[root@iZfdjfsqewlu0jZ ~]# docker push tomliyouxiu/mytomcat:1.0
+The push refers to repository [docker.io/tomliyouxiu/mytomcat]
+a731f47fada1: Pushed 
+b1ed6b3ee998: Pushed 
+5017ffc2eed5: Pushed 
+17fd82517329: Pushed 
+174f56854903: Pushed 
+1.0: digest: sha256:65bcb9b85a44cb390fe32aae9e2a69cf47557aedddc1418ec7cf4d80cac44d9f size: 1373
+
+
+~~~
+
+![](https://pic.imgdb.cn/item/62c1a8bd5be16ec74a398cb7.jpg)
+
+> 发布到阿里云
+
+1.登录阿里云
+
+2.找到容器镜像服务
+
+3.创建命名空间
+
+4.创建容器服务
+
+5.登录并推送到仓库
+
+~~~shell
+$ docker login --username=tom李优秀-svmoen registry.cn-qingdao.aliyuncs.com
+$ docker tag [ImageId] registry.cn-qingdao.aliyuncs.com/li_docker_1/test_docker:[镜像版本号]
+$ docker push registry.cn-qingdao.aliyuncs.com/li_docker_1/test_docker:[镜像版本号]
+~~~
+
+## 小结
+
+![](https://pic.imgdb.cn/item/62c396c95be16ec74a209d3e.jpg)
+
 # Docker 网络
+
+## 理解Docker0
+
+> 测试
+
+~~~shell
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:16:3e:0e:2c:97 brd ff:ff:ff:ff:ff:ff
+    inet 172.25.13.52/18 brd 172.25.63.255 scope global dynamic noprefixroute eth0
+       valid_lft 313482899sec preferred_lft 313482899sec
+    inet6 fe80::216:3eff:fe0e:2c97/64 scope link 
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:19:98:bf:fc brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:19ff:fe98:bffc/64 scope link 
+       valid_lft forever preferred_lft forever
+~~~
+
+三个网络
+
+~~~
+docker是如何处理网络的问题
+~~~
 
 # 未完待续
 
